@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Kesesuaian Lahan Permukiman</title>
+    <link rel="stylesheet" href="library/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="library/leaflet/leaflet.js"></script>
+    <script src="library/leaflet-providers-master/leaflet-providers.js"></script>
+    <script src="library/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="map">
+        <script>
+            var map = L.map('map').setView([-8.197940, 111.092838], 14);
+
+            var baseLayers = {
+                'Esri WorldTopoMap': L.tileLayer.provider('Esri.WorldTopoMap'),
+                'Esri WorldImagery': L.tileLayer.provider('Esri.WorldImagery').addTo(map),
+                'OSM Default': L.tileLayer.provider('OpenStreetMap.DE'),
+                'OSM France': L.tileLayer.provider('OpenStreetMap.France')
+            };
+
+
+            /* Memanggil Layer Kesesuaian Lahan */
+            var KesesuaianLahan = L.geoJson(null, {
+                style: function(feature) {
+                    return {
+                        color: "black",
+                        fillColor: KlasPermukiman[feature.properties.Klas_Permu],
+                        weight: 0.3,
+                        opacity: 0,
+                        fillOpacity: 0.5
+                    };
+                },
+
+                /* popup */
+                onEachFeature: function( feature, layer ){
+                    layer.bindPopup(
+                        "Klas Kesesuaian : " + "<left>" + feature.properties.Klas_Permu + "</left>" + "<br>" +
+                        "Luas :" + "<left>" + feature.properties.Luas + "</left>" + " ha"
+                        )
+                }
+            });
+            $.getJSON("data/Kesesuaian_Lahan_Permukiman.json", function(data) {
+                KesesuaianLahan.addData(data);
+            });
+
+            /* Merubah Tampilan Warna Berdasar Atribut Klas Permukiman */
+            var KlasPermukiman = {
+                "Sangat Sesuai":"#195204",
+                "Sesuai":"#36a30f",
+                "Cukup Sesuai":"#e3dd34",
+                "Kurang Sesuai":"#875309",
+                "Tidak Sesuai":"#a60d0d"
+            };
+
+            var mapLayers = {
+                'Area Kesesuaian Lahan': KesesuaianLahan
+            };
+
+            L.control.layers(baseLayers, mapLayers).addTo(map);
+        </script>
+    </div>
+</body>
+
+</html>
